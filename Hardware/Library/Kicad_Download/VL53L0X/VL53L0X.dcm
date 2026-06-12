@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP VL53L0X
+D World smallest Time-of-Flight ranging and gesture detection sensor
+K
+F https://www.mouser.com/ds/2/389/vl53l0x-1156212.pdf
+$ENDCMP
+#
+#End Doc Library
