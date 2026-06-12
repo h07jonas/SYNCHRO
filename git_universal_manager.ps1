@@ -750,14 +750,15 @@ $UpdateBranches = {
     if ($BranchResult.ExitCode -eq 0) {
         $Branches = $BranchResult.Output -split "`r?`n" | Where-Object { $_ -ne "" }
         foreach ($Branch in $Branches) {
-            [void]$cmbBranches.Items.Add($Branch)
+            $CleanBranch = $Branch.Trim("'").Trim()
+            [void]$cmbBranches.Items.Add($CleanBranch)
         }
     }
     
     # Aktiven Branch ermitteln und selektieren
     $CurrentBranchResult = Invoke-Git "branch --show-current"
     if ($CurrentBranchResult.ExitCode -eq 0 -and $CurrentBranchResult.Output) {
-        $CurrentBranch = $CurrentBranchResult.Output
+        $CurrentBranch = $CurrentBranchResult.Output.Trim("'").Trim()
         $Idx = $cmbBranches.Items.IndexOf($CurrentBranch)
         if ($Idx -ge 0) {
             $cmbBranches.SelectedIndex = $Idx
