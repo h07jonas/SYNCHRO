@@ -1,0 +1,18 @@
+# KiCad temporaere Sperrdateien (Lockfiles)
+*.lck
+~*
+
+# VS Code History & Settings
+.history/
+.vscode/
+
+# Betriebssystem-Dateien
+Thumbs.db
+Desktop.ini
+
+# KiCad Backups und temporaere Sicherungen
+*-bak
+*.bak
+*_saved-*
+_saved_*
+fp-info-cache
