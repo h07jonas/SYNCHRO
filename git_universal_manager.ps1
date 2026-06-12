@@ -1105,7 +1105,7 @@ $DoMergeBranch = {
         if ($Confirm -eq "Yes") {
             Write-Log ("=== START MERGE: Merge '" + $SelectedBranchToMerge + "' in '" + $CurrentBranch + "' ===") $Colors.Accent
             $Form.Enabled = $false
-            $MergeResult = Invoke-Git ("merge " + $SelectedBranchToMerge)
+            $MergeResult = Invoke-Git ("merge --no-edit " + $SelectedBranchToMerge)
             $Form.Enabled = $true
             
             if ($MergeResult.ExitCode -eq 0) {
@@ -1180,7 +1180,7 @@ $DoPull = {
         return
     }
     
-    $Result = Invoke-Git "pull origin $SelectedBranch"
+    $Result = Invoke-Git "pull origin $SelectedBranch --no-edit"
     if ($Result.ExitCode -eq 0) {
         if ($Result.Output) { Write-Log $Result.Output $Colors.Text }
         Write-Log "=== Pull erfolgreich beendet! ===" $Colors.Green
