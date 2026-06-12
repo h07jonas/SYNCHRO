@@ -631,13 +631,18 @@
       {
         "filename": "SYNCHRO_Booster.kicad_sch",
         "name": "SYNCHRO_Booster",
-        "uuid": "00000000-0000-0000-0000-000000000000"
+        "uuid": "9b53547f-1606-48cc-b9fd-758d35b9d4f2"
       }
     ],
-    "used_designators": "",
+    "used_designators": "J1,R1-6,IC1,U1,C1-7,#PWR1-9,PS1",
     "variants": []
   },
-  "sheets": [],
+  "sheets": [
+    [
+      "9b53547f-1606-48cc-b9fd-758d35b9d4f2",
+      "SYNCHRO_Booster"
+    ]
+  ],
   "text_variables": {},
   "tuning_profiles": {
     "meta": {
