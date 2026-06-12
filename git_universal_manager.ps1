@@ -70,6 +70,60 @@ function Get-ThemeColors {
 $Colors = Get-ThemeColors
 
 # ------------------------------------------------------------------------------
+# 2.1. Hilfsfunktionen f$([char]252)r Log & Git-Prozesse
+# ------------------------------------------------------------------------------
+function Write-Log {
+    param(
+        [string]$Message,
+        [System.Drawing.Color]$Color = [System.Drawing.Color]::LightGray
+    )
+    $txtConsole.SelectionStart = $txtConsole.TextLength
+    $txtConsole.SelectionLength = 0
+    $txtConsole.SelectionColor = $Color
+    $txtConsole.AppendText($Message + "`r`n")
+    $txtConsole.ScrollToCaret()
+}
+
+function Invoke-Git {
+    param([string]$ArgsString)
+    $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+    $pinfo.FileName = "git"
+    $pinfo.Arguments = $ArgsString
+    $pinfo.UseShellExecute = $false
+    $pinfo.RedirectStandardOutput = $true
+    $pinfo.RedirectStandardError = $true
+    $pinfo.CreateNoWindow = $true
+    
+    # UTF-8 Unterst$([char]252)tzung f$([char]252)r Git-Ausgaben erzwingen
+    try {
+        $pinfo.StandardOutputEncoding = [System.Text.Encoding]::UTF8
+        $pinfo.StandardErrorEncoding = [System.Text.Encoding]::UTF8
+    } catch {}
+    
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $pinfo
+    
+    try {
+        $process.Start() | Out-Null
+        $stdout = $process.StandardOutput.ReadToEnd()
+        $stderr = $process.StandardError.ReadToEnd()
+        $process.WaitForExit()
+        
+        return [PSCustomObject]@{
+            ExitCode = $process.ExitCode
+            Output   = $stdout.TrimEnd()
+            Error    = $stderr.TrimEnd()
+        }
+    } catch {
+        return [PSCustomObject]@{
+            ExitCode = -1
+            Output   = ""
+            Error    = "Git ist auf diesem Computer nicht installiert oder im PATH nicht verf$([char]252)gbar."
+        }
+    }
+}
+
+# ------------------------------------------------------------------------------
 # 3. GUI Form Design & Layout
 # ------------------------------------------------------------------------------
 $Form = New-Object System.Windows.Forms.Form
@@ -759,8 +813,13 @@ $UpdateStatus = {
     }
     
     foreach ($Line in $Lines) {
-        $Flag = $Line.Substring(0, 2)
-        $FilePath = $Line.Substring(3).Trim()
+        # Parsing via Regex um robust gegen eventuelle Trim- oder Whitespace-Abweichungen zu sein
+        if ($Line -match "^(.{2})\s+(.*)$") {
+            $Flag = $Matches[1]
+            $FilePath = $Matches[2]
+        } else {
+            continue
+        }
         
         $FriendlyStatus = ""
         switch -wildcard ($Flag) {
