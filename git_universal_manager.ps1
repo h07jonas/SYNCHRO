@@ -200,12 +200,17 @@ $tabGit = New-Object System.Windows.Forms.TabPage("Git-Schnittstelle")
 $tabGit.BackColor = $Colors.Panel
 $TabControl.TabPages.Add($tabGit)
 
-# TAB 2: Ordner- & Repo-Explorer
+# TAB 2: Versionsverlauf & Commits
+$tabHistory = New-Object System.Windows.Forms.TabPage("Versionsverlauf")
+$tabHistory.BackColor = $Colors.Panel
+$TabControl.TabPages.Add($tabHistory)
+
+# TAB 3: Ordner- & Repo-Explorer
 $tabExplorer = New-Object System.Windows.Forms.TabPage("Ordner- & Repo-Explorer")
 $tabExplorer.BackColor = $Colors.Panel
 $TabControl.TabPages.Add($tabExplorer)
 
-# TAB 3: Hilfe & Dokumentation
+# TAB 4: Hilfe & Dokumentation
 $tabHelp = New-Object System.Windows.Forms.TabPage("Hilfe & Dokumentation")
 $tabHelp.BackColor = $Colors.Panel
 $TabControl.TabPages.Add($tabHelp)
@@ -351,13 +356,25 @@ $tabGit.Controls.Add($lblBranch)
 
 $cmbBranches = New-Object System.Windows.Forms.ComboBox
 $cmbBranches.Location = New-Object System.Drawing.Point(470, 150)
-$cmbBranches.Size = New-Object System.Drawing.Size(340, 25)
+$cmbBranches.Size = New-Object System.Drawing.Size(250, 25)
 $cmbBranches.BackColor = $Colors.Bg
 $cmbBranches.ForeColor = $Colors.Text
 $cmbBranches.FlatStyle = "Flat"
 $cmbBranches.Font = $FontRegular
 $cmbBranches.DropDownStyle = "DropDownList"
 $tabGit.Controls.Add($cmbBranches)
+
+$btnMergeBranch = New-Object System.Windows.Forms.Button
+$btnMergeBranch.Text = "Merge..."
+$btnMergeBranch.Location = New-Object System.Drawing.Point(725, 149)
+$btnMergeBranch.Size = New-Object System.Drawing.Size(95, 26)
+$btnMergeBranch.BackColor = $Colors.Bg
+$btnMergeBranch.FlatStyle = "Flat"
+$btnMergeBranch.FlatAppearance.BorderSize = 0
+$btnMergeBranch.Font = $FontRegular
+$btnMergeBranch.TextAlign = [System.Drawing.ContentAlignment]::MiddleLeft
+$btnMergeBranch.Padding = New-Object System.Windows.Forms.Padding(25, 0, 0, 0)
+$tabGit.Controls.Add($btnMergeBranch)
 
 $btnNewBranch = New-Object System.Windows.Forms.Button
 $btnNewBranch.Text = "Neu..."
@@ -428,7 +445,46 @@ $tabGit.Controls.Add($btnPush)
 
 
 # ------------------------------------------------------------------------------
-# CONTROLS FÜR TAB 2: Ordner- & Repo-Explorer
+# CONTROLS FÜR TAB 2: Versionsverlauf & Commits
+# ------------------------------------------------------------------------------
+
+# Commit ListBox
+$HistoryListBox = New-Object System.Windows.Forms.ListBox
+$HistoryListBox.Location = New-Object System.Drawing.Point(10, 15)
+$HistoryListBox.Size = New-Object System.Drawing.Size(450, 390)
+$HistoryListBox.BackColor = $Colors.Bg
+$HistoryListBox.ForeColor = $Colors.Text
+$HistoryListBox.BorderStyle = "FixedSingle"
+$HistoryListBox.Font = $FontRegular
+$tabHistory.Controls.Add($HistoryListBox)
+
+# Details RichTextBox
+$txtCommitDetails = New-Object System.Windows.Forms.RichTextBox
+$txtCommitDetails.Location = New-Object System.Drawing.Point(480, 15)
+$txtCommitDetails.Size = New-Object System.Drawing.Size(450, 340)
+$txtCommitDetails.BackColor = $Colors.Bg
+$txtCommitDetails.ForeColor = $Colors.Text
+$txtCommitDetails.Font = $FontConsole
+$txtCommitDetails.ReadOnly = $true
+$txtCommitDetails.BorderStyle = "FixedSingle"
+$tabHistory.Controls.Add($txtCommitDetails)
+
+# Refresh Button
+$btnRefreshHistory = New-Object System.Windows.Forms.Button
+$btnRefreshHistory.Text = "Verlauf laden"
+$btnRefreshHistory.Location = New-Object System.Drawing.Point(480, 370)
+$btnRefreshHistory.Size = New-Object System.Drawing.Size(160, 35)
+$btnRefreshHistory.BackColor = $Colors.Bg
+$btnRefreshHistory.FlatStyle = "Flat"
+$btnRefreshHistory.FlatAppearance.BorderSize = 0
+$btnRefreshHistory.Font = $FontHeader
+$btnRefreshHistory.TextAlign = [System.Drawing.ContentAlignment]::MiddleLeft
+$btnRefreshHistory.Padding = New-Object System.Windows.Forms.Padding(35, 0, 0, 0)
+$tabHistory.Controls.Add($btnRefreshHistory)
+
+
+# ------------------------------------------------------------------------------
+# CONTROLS FÜR TAB 3: Ordner- & Repo-Explorer
 # ------------------------------------------------------------------------------
 
 # Linke Seite: Folder TreeView
@@ -556,6 +612,44 @@ $Form.Controls.Add($txtConsole)
 # ------------------------------------------------------------------------------
 # 4. GDI+ Vektor-Grafik-Zeichnungen (Keine Emojis)
 # ------------------------------------------------------------------------------
+
+# Refresh History Button Icon (Circular Arrow)
+$btnRefreshHistory.Add_Paint({
+    param($sender, $e)
+    $g = $e.Graphics
+    $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $pen = New-Object System.Drawing.Pen($Colors.Text, 2)
+    $rect = New-Object System.Drawing.Rectangle(12, 10, 14, 14)
+    $g.DrawArc($pen, $rect, -45, 270)
+    
+    $brush = New-Object System.Drawing.SolidBrush($Colors.Text)
+    $p1 = New-Object System.Drawing.PointF(22, 7)
+    $p2 = New-Object System.Drawing.PointF(26, 11)
+    $p3 = New-Object System.Drawing.PointF(21, 14)
+    $g.FillPolygon($brush, ($p1, $p2, $p3))
+    
+    $pen.Dispose()
+    $brush.Dispose()
+})
+
+# Merge Button Icon (Branch Curve)
+$btnMergeBranch.Add_Paint({
+    param($sender, $e)
+    $g = $e.Graphics
+    $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    $pen = New-Object System.Drawing.Pen($Colors.Text, 1.8)
+    $brush = New-Object System.Drawing.SolidBrush($Colors.Text)
+    
+    $g.DrawLine($pen, 8, 5, 8, 20)
+    $g.DrawBezier($pen, 16, 5, 14, 10, 10, 12, 8, 14)
+    
+    $g.FillEllipse($brush, 6, 4, 4, 4)
+    $g.FillEllipse($brush, 14, 4, 4, 4)
+    $g.FillEllipse($brush, 6, 18, 4, 4)
+    
+    $pen.Dispose()
+    $brush.Dispose()
+})
 
 # Refresh Button Icon (Circular Arrow)
 $btnRefresh.Add_Paint({
@@ -740,10 +834,16 @@ $btnSyncEmpty.Add_Paint({
 # 5. Business Logic & Git Events
 # ------------------------------------------------------------------------------
 
+$script:IsPopulatingBranches = $false
+
 # Aktualisiert die Dropdown-Auswahl für Branches
 $UpdateBranches = {
+    $script:IsPopulatingBranches = $true
     $cmbBranches.Items.Clear()
-    if (-not (Test-GitRepository)) { return }
+    if (-not (Test-GitRepository)) { 
+        $script:IsPopulatingBranches = $false
+        return 
+    }
     
     # Lokale Branches auslesen
     $BranchResult = Invoke-Git "branch --format='%(refname:short)'"
@@ -767,6 +867,7 @@ $UpdateBranches = {
         [void]$cmbBranches.Items.Add("main")
         $cmbBranches.SelectedIndex = 0
     }
+    $script:IsPopulatingBranches = $false
 }
 
 # Status-Update für das gesamte Verzeichnis (Git Status)
@@ -875,11 +976,193 @@ $UpdateTreeView = {
     $rootNode.Expand()
 }
 
+# Aktualisiert den Commit-Verlauf (Versionsverlauf)
+$UpdateHistory = {
+    $HistoryListBox.Items.Clear()
+    $txtCommitDetails.Clear()
+    if (-not (Test-GitRepository)) { return }
+    
+    $LogRes = Invoke-Git "log -n 50 --oneline"
+    if ($LogRes.ExitCode -eq 0 -and $LogRes.Output) {
+        $Commits = $LogRes.Output -split "`r?`n" | Where-Object { $_ -ne "" }
+        foreach ($Commit in $Commits) {
+            [void]$HistoryListBox.Items.Add($Commit)
+        }
+    } else {
+        [void]$HistoryListBox.Items.Add("Keine Commits vorhanden oder Fehler beim Laden.")
+    }
+}
+
+# Hilfsdialog fuer die Branch-Auswahl beim Merge
+function Show-BranchSelectionDialog {
+    param(
+        [string]$Title,
+        [string]$Prompt,
+        [System.Collections.ArrayList]$BranchList
+    )
+    
+    $dialog = New-Object System.Windows.Forms.Form
+    $dialog.Text = $Title
+    $dialog.Size = New-Object System.Drawing.Size(350, 180)
+    $dialog.StartPosition = "CenterParent"
+    $dialog.FormBorderStyle = "FixedDialog"
+    $dialog.MaximizeBox = $false
+    $dialog.MinimizeBox = $false
+    $dialog.BackColor = $Colors.Panel
+    $dialog.ForeColor = $Colors.Text
+    
+    $lblPrompt = New-Object System.Windows.Forms.Label
+    $lblPrompt.Text = $Prompt
+    $lblPrompt.Location = New-Object System.Drawing.Point(20, 15)
+    $lblPrompt.Size = New-Object System.Drawing.Size(300, 20)
+    $lblPrompt.Font = $FontHeader
+    $dialog.Controls.Add($lblPrompt)
+    
+    $cmbSelect = New-Object System.Windows.Forms.ComboBox
+    $cmbSelect.Location = New-Object System.Drawing.Point(20, 45)
+    $cmbSelect.Size = New-Object System.Drawing.Size(290, 25)
+    $cmbSelect.DropDownStyle = "DropDownList"
+    $cmbSelect.BackColor = $Colors.Bg
+    $cmbSelect.ForeColor = $Colors.Text
+    $cmbSelect.FlatStyle = "Flat"
+    $cmbSelect.Font = $FontRegular
+    foreach ($item in $BranchList) {
+        [void]$cmbSelect.Items.Add($item)
+    }
+    if ($cmbSelect.Items.Count -gt 0) {
+        $cmbSelect.SelectedIndex = 0
+    }
+    $dialog.Controls.Add($cmbSelect)
+    
+    $btnOk = New-Object System.Windows.Forms.Button
+    $btnOk.Text = "Merge"
+    $btnOk.DialogResult = "OK"
+    $btnOk.Location = New-Object System.Drawing.Point(120, 95)
+    $btnOk.Size = New-Object System.Drawing.Size(90, 30)
+    $btnOk.BackColor = $Colors.Accent
+    $btnOk.ForeColor = [System.Drawing.Color]::White
+    $btnOk.FlatStyle = "Flat"
+    $btnOk.FlatAppearance.BorderSize = 0
+    $btnOk.Font = $FontHeader
+    $dialog.Controls.Add($btnOk)
+    
+    $btnCancel = New-Object System.Windows.Forms.Button
+    $btnCancel.Text = "Abbrechen"
+    $btnCancel.DialogResult = "Cancel"
+    $btnCancel.Location = New-Object System.Drawing.Point(220, 95)
+    $btnCancel.Size = New-Object System.Drawing.Size(90, 30)
+    $btnCancel.BackColor = $Colors.Bg
+    $btnCancel.ForeColor = $Colors.Text
+    $btnCancel.FlatStyle = "Flat"
+    $btnCancel.FlatAppearance.BorderSize = 0
+    $btnCancel.Font = $FontRegular
+    $dialog.Controls.Add($btnCancel)
+    
+    $dialog.AcceptButton = $btnOk
+    $dialog.CancelButton = $btnCancel
+    
+    $result = $dialog.ShowDialog()
+    if ($result -eq "OK") {
+        return $cmbSelect.SelectedItem
+    }
+    return $null
+}
+
+# Merge-Event
+$DoMergeBranch = {
+    if (-not (Test-GitRepository)) { return }
+    
+    $CurrentBranchRes = Invoke-Git "branch --show-current"
+    if ($CurrentBranchRes.ExitCode -ne 0 -or -not $CurrentBranchRes.Output) {
+        [System.Windows.Forms.MessageBox]::Show("Konnte den aktuellen Branch nicht ermitteln.", "Fehler", "OK", "Error") | Out-Null
+        return
+    }
+    $CurrentBranch = $CurrentBranchRes.Output.Trim("'").Trim()
+    
+    $BranchResult = Invoke-Git "branch --format='%(refname:short)'"
+    if ($BranchResult.ExitCode -ne 0) {
+        [System.Windows.Forms.MessageBox]::Show("Fehler beim Laden der Branches.", "Fehler", "OK", "Error") | Out-Null
+        return
+    }
+    
+    $OtherBranches = New-Object System.Collections.ArrayList
+    $Branches = $BranchResult.Output -split "`r?`n" | Where-Object { $_ -ne "" }
+    foreach ($Branch in $Branches) {
+        $CleanB = $Branch.Trim("'").Trim()
+        if ($CleanB -ne $CurrentBranch) {
+            [void]$OtherBranches.Add($CleanB)
+        }
+    }
+    
+    if ($OtherBranches.Count -eq 0) {
+        [System.Windows.Forms.MessageBox]::Show("Es gibt keine anderen lokalen Branches zum Zusammenfuehren.", "Keine Auswahl", "OK", "Information") | Out-Null
+        return
+    }
+    
+    $SelectedBranchToMerge = Show-BranchSelectionDialog -Title "Git Branch Zusammenfuehrung (Merge)" -Prompt ("Zusammenfuehren in Branch '" + $CurrentBranch + "':") -BranchList $OtherBranches
+    if ($SelectedBranchToMerge -ne $null) {
+        $Confirm = [System.Windows.Forms.MessageBox]::Show("Moechten Sie den Branch '" + $SelectedBranchToMerge + "' wirklich in '" + $CurrentBranch + "' mergen?", "Merge bestoetigen", "YesNo", "Question")
+        if ($Confirm -eq "Yes") {
+            Write-Log ("=== START MERGE: Merge '" + $SelectedBranchToMerge + "' in '" + $CurrentBranch + "' ===") $Colors.Accent
+            $Form.Enabled = $false
+            $MergeResult = Invoke-Git ("merge " + $SelectedBranchToMerge)
+            $Form.Enabled = $true
+            
+            if ($MergeResult.ExitCode -eq 0) {
+                if ($MergeResult.Output) { Write-Log $MergeResult.Output $Colors.Text }
+                Write-Log "=== Merge erfolgreich beendet! ===" $Colors.Green
+            } else {
+                if ($MergeResult.Error) { Write-Log $MergeResult.Error $Colors.Red }
+                if ($MergeResult.Output) { Write-Log $MergeResult.Output $Colors.Red }
+                Write-Log "=== MERGE-FEHLER: Eventuell gibt es Konflikte. Bitte loesen Sie diese in den betroffenen Dateien! ===" $Colors.Red
+                [System.Windows.Forms.MessageBox]::Show("Merge fehlgeschlagen oder Konflikte aufgetreten.`n`nBitte pruefen Sie das AktivitÃ¤tsprotokoll.", "Merge Konflikt/Fehler", "OK", "Warning") | Out-Null
+            }
+            & $DoRefreshAll
+        }
+    }
+}
+
+# Event-Handler für automatischen Branch-Wechsel bei Auswahl
+$cmbBranches_SelectedIndexChanged = {
+    if ($script:IsPopulatingBranches) { return }
+    
+    $SelectedBranch = $cmbBranches.SelectedItem
+    if (-not $SelectedBranch) { return }
+    
+    $CurrentBranchResult = Invoke-Git "branch --show-current"
+    $CurrentBranch = $CurrentBranchResult.Output.Trim("'").Trim()
+    if ($CurrentBranch -eq $SelectedBranch) { return }
+    
+    Write-Log ("Wechsle zu Branch '" + $SelectedBranch + "'...") $Colors.Accent
+    $Form.Enabled = $false
+    $Result = Invoke-Git ("checkout " + $SelectedBranch)
+    $Form.Enabled = $true
+    
+    if ($Result.ExitCode -eq 0) {
+        Write-Log ("Erfolgreich zu Branch '" + $SelectedBranch + "' gewechselt.") $Colors.Green
+        & $UpdateStatus
+        & $UpdateHistory
+    } else {
+        Write-Log ("Fehler beim Wechseln des Branches:") $Colors.Red
+        Write-Log $Result.Error $Colors.Red
+        
+        $script:IsPopulatingBranches = $true
+        $Idx = $cmbBranches.Items.IndexOf($CurrentBranch)
+        if ($Idx -ge 0) {
+            $cmbBranches.SelectedIndex = $Idx
+        }
+        $script:IsPopulatingBranches = $false
+        
+        [System.Windows.Forms.MessageBox]::Show("Wechseln fehlgeschlagen. Haben Sie eventuell ungesicherte Aenderungen?`n`nDetails:`n" + $Result.Error, "Fehler beim Branch-Wechsel", "OK", "Error") | Out-Null
+    }
+}
+
 # Unified Refresh Action
 $DoRefreshAll = {
     & $UpdateBranches
     & $UpdateStatus
     & $UpdateTreeView
+    & $UpdateHistory
 }
 
 # Pull-Event (Synchronisierung von Remote)
@@ -904,6 +1187,7 @@ $DoPull = {
     } else {
         if ($Result.Error) { Write-Log $Result.Error $Colors.Red }
         Write-Log "Fehler beim Herunterladen." $Colors.Red
+        Write-Log "TIPP: Pruefen Sie Ihre Internetverbindung und ob der Remote-Branch auf GitHub existiert." $Colors.Accent
     }
     
     $Form.Enabled = $true
@@ -967,7 +1251,7 @@ $DoPush = {
         } else {
             Write-Log "Fehler beim Hochladen zu GitHub:" $Colors.Red
             Write-Log $PushResult.Error $Colors.Red
-            Write-Log "Hinweis: Falls es der erste Push dieses Branches ist, nutzt Git eventuell die Upstream-Zuordnung." $Colors.Text
+            Write-Log "TIPP: Falls dies der erste Push f$([char]252)r diesen Branch ist, fuehren Sie eventuell zuerst einen Push mit '--set-upstream origin $SelectedBranch' aus oder pruefen Sie Ihre Schreibrechte." $Colors.Accent
         }
     } else {
         Write-Log "Fehler beim Commit:" $Colors.Red
@@ -1183,6 +1467,26 @@ $btnInitRun.Add_Click($DoInitRepository)
 $btnChangeRemote.Add_Click($DoChangeRemote)
 $btnCreateFolder.Add_Click($DoCreateFolder)
 $btnSyncEmpty.Add_Click($DoSyncEmptyFolders)
+
+# Neue Event-Verknuepfungen fuer Branch-Management & Commit-Verlauf
+$btnMergeBranch.Add_Click($DoMergeBranch)
+$btnRefreshHistory.Add_Click($UpdateHistory)
+$cmbBranches.add_SelectedIndexChanged($cmbBranches_SelectedIndexChanged)
+
+$HistoryListBox.add_SelectedIndexChanged({
+    $Selected = $HistoryListBox.SelectedItem
+    if ($Selected -and $Selected -ne "Keine Commits vorhanden oder Fehler beim Laden.") {
+        if ($Selected -match "^([a-f0-9]+)\s+(.*)$") {
+            $Hash = $Matches[1]
+            $ShowRes = Invoke-Git ("show --stat " + $Hash)
+            if ($ShowRes.ExitCode -eq 0) {
+                $txtCommitDetails.Text = $ShowRes.Output
+            } else {
+                $txtCommitDetails.Text = "Fehler beim Laden des Commits: " + $ShowRes.Error
+            }
+        }
+    }
+})
 
 [void][System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic")
 
