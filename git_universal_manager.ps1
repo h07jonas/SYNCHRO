@@ -899,6 +899,20 @@ $UpdateStatus = {
         $lblRemoteInfo.Text = "GitHub Remote-Ziel: Kein Remote-Link ('origin') hinterlegt!"
     }
     
+    # Pr$([char]252)fen, ob wir Commits vor/nach Remote haben (ahead/behind)
+    $AheadCount = 0
+    $BehindCount = 0
+    $StatusB = Invoke-Git "status -b --porcelain"
+    if ($StatusB.ExitCode -eq 0 -and $StatusB.Output -match "\[(.*)\]") {
+        $Details = $Matches[1]
+        if ($Details -match "ahead\s+(\d+)") {
+            $AheadCount = [int]$Matches[1]
+        }
+        if ($Details -match "behind\s+(\d+)") {
+            $BehindCount = [int]$Matches[1]
+        }
+    }
+    
     # Git Status abrufen
     $GitStatus = Invoke-Git "status --porcelain"
     if ($GitStatus.ExitCode -ne 0) {
@@ -909,13 +923,8 @@ $UpdateStatus = {
     
     $Lines = $GitStatus.Output -split "`r?`n" | Where-Object { $_ -ne "" }
     
-    if ($Lines.Count -eq 0) {
-        Write-Log "Status: Alles sauber! Keine ungesicherten $([char]196)nderungen vorhanden." $Colors.Green
-        return
-    }
-    
+    # ListBox befüllen falls Änderungen vorhanden
     foreach ($Line in $Lines) {
-        # Parsing via Regex um robust gegen eventuelle Trim- oder Whitespace-Abweichungen zu sein
         if ($Line -match "^(.{2})\s+(.*)$") {
             $Flag = $Matches[1]
             $FilePath = $Matches[2]
@@ -940,7 +949,30 @@ $UpdateStatus = {
         $Index = $FileListBox.Items.Add($ItemText)
         $FileListBox.SetItemChecked($Index, $true)
     }
-    Write-Log "Status aktualisiert. $($Lines.Count) $([char]196)nderungen gefunden." $Colors.Accent
+    
+    # Push Button Zustand anpassen
+    if ($Lines.Count -gt 0) {
+        $btnPush.Text = "HOCHLADEN (Commit & Push)"
+        $btnPush.Enabled = $true
+        $btnPush.BackColor = $Colors.Accent
+        Write-Log "Status aktualisiert. $($Lines.Count) $([char]196)nderungen gefunden." $Colors.Accent
+    } else {
+        if ($AheadCount -gt 0) {
+            $btnPush.Text = "AUSSTEHENDE COMMITS PUSHEN ($AheadCount Commit(s) hochladen)"
+            $btnPush.Enabled = $true
+            $btnPush.BackColor = $Colors.Accent
+            Write-Log "Status: Lokales Repository hat $AheadCount ausstehende(n) Commit(s) zum Hochladen (Push)." $Colors.Accent
+        } else {
+            $btnPush.Text = "HOCHLADEN (Commit & Push)"
+            $btnPush.Enabled = $false
+            $btnPush.BackColor = $Colors.Bg
+            Write-Log "Status: Alles sauber! Keine ungesicherten $([char]196)nderungen vorhanden." $Colors.Green
+        }
+    }
+    
+    if ($BehindCount -gt 0) {
+        Write-Log "HINWEIS: Auf GitHub sind $BehindCount neuere(r) Commit(s) vorhanden. Bitte 'Herunterladen (Pull)' ausf$([char]252)hren!" $Colors.Accent
+    }
 }
 
 # Lokale TreeView-Ordnerstruktur befüllen
@@ -1159,6 +1191,10 @@ $cmbBranches_SelectedIndexChanged = {
 
 # Unified Refresh Action
 $DoRefreshAll = {
+    $RemoteCheck = Invoke-Git "remote"
+    if ($RemoteCheck.ExitCode -eq 0 -and -not [string]::IsNullOrEmpty($RemoteCheck.Output)) {
+        Invoke-Git "fetch origin" | Out-Null
+    }
     & $UpdateBranches
     & $UpdateStatus
     & $UpdateTreeView
@@ -1197,65 +1233,90 @@ $DoPull = {
 # Push/Commit-Event (Übertragung auf GitHub)
 $DoPush = {
     $CheckedItems = $FileListBox.CheckedItems
+    
+    $IsPushOnly = $false
     if ($CheckedItems.Count -eq 0) {
-        [System.Windows.Forms.MessageBox]::Show("Bitte w$([char]228)hle mindestens eine Datei zum Sichern aus.", "Keine Auswahl", "OK", "Warning") | Out-Null
-        return
+        $AheadCheck = 0
+        $StatusB = Invoke-Git "status -b --porcelain"
+        if ($StatusB.ExitCode -eq 0 -and $StatusB.Output -match "\[ahead\s+(\d+)\]") {
+            $AheadCheck = [int]$Matches[1]
+        }
+        
+        if ($AheadCheck -gt 0) {
+            $IsPushOnly = $true
+        } else {
+            [System.Windows.Forms.MessageBox]::Show("Bitte w$([char]228)hle mindestens eine Datei zum Sichern aus.", "Keine Auswahl", "OK", "Warning") | Out-Null
+            return
+        }
     }
     
-    $Comment = $txtCommitMsg.Text.Trim()
-    if ([string]::IsNullOrEmpty($Comment)) {
-        [System.Windows.Forms.MessageBox]::Show("Bitte gib einen $([char]196)nderungskommentar ein.", "Kommentar fehlt", "OK", "Warning") | Out-Null
-        return
+    if (-not $IsPushOnly) {
+        $Comment = $txtCommitMsg.Text.Trim()
+        if ([string]::IsNullOrEmpty($Comment)) {
+            [System.Windows.Forms.MessageBox]::Show("Bitte gib einen $([char]196)nderungskommentar ein.", "Kommentar fehlt", "OK", "Warning") | Out-Null
+            return
+        }
     }
     
     $SelectedBranch = $cmbBranches.SelectedItem
     if (-not $SelectedBranch) { $SelectedBranch = "main" }
     
-    Write-Log "=== START UPLOAD: Sichern auf Branch '$SelectedBranch' ===" $Colors.Accent
     $Form.Enabled = $false
     
-    # 1. Staging der selektierten Dateien
-    foreach ($Item in $CheckedItems) {
-        $CleanPath = $Item -replace "^\[.*?\]\s+", ""
-        if ($CleanPath -match " -> ") {
-            $Parts = $CleanPath -split " -> "
-            $OldPath = $Parts[0].Trim()
-            $NewPath = $Parts[1].Trim()
-            Write-Log "Verschiebung registrieren: $OldPath -> $NewPath"
-            Invoke-Git "add `"$OldPath`""
-            Invoke-Git "add `"$NewPath`""
-        } else {
-            Write-Log "Hinzuf$([char]252)gen: $CleanPath"
-            $AddResult = Invoke-Git "add `"$CleanPath`""
-            if ($AddResult.ExitCode -ne 0) {
-                Write-Log "Fehler beim Hinzuf$([char]252)gen von $CleanPath" $Colors.Red
+    $Success = $true
+    if (-not $IsPushOnly) {
+        Write-Log "=== START UPLOAD: Sichern auf Branch '$SelectedBranch' ===" $Colors.Accent
+        
+        # 1. Staging der selektierten Dateien
+        foreach ($Item in $CheckedItems) {
+            $CleanPath = $Item -replace "^\[.*?\]\s+", ""
+            if ($CleanPath -match " -> ") {
+                $Parts = $CleanPath -split " -> "
+                $OldPath = $Parts[0].Trim()
+                $NewPath = $Parts[1].Trim()
+                Write-Log "Verschiebung registrieren: $OldPath -> $NewPath"
+                Invoke-Git "add `"$OldPath`""
+                Invoke-Git "add `"$NewPath`""
+            } else {
+                Write-Log "Hinzuf$([char]252)gen: $CleanPath"
+                $AddResult = Invoke-Git "add `"$CleanPath`""
+                if ($AddResult.ExitCode -ne 0) {
+                    Write-Log "Fehler beim Hinzuf$([char]252)gen von $CleanPath" $Colors.Red
+                }
             }
         }
+        
+        # 2. Commit erzeugen
+        Write-Log "Erstelle Commit..."
+        $EscapedComment = $Comment -replace '"', '\"'
+        $CommitResult = Invoke-Git "commit -m `"$EscapedComment`""
+        
+        if ($CommitResult.ExitCode -eq 0) {
+            Write-Log $CommitResult.Output $Colors.Green
+        } else {
+            Write-Log "Fehler beim Commit:" $Colors.Red
+            Write-Log $CommitResult.Error $Colors.Red
+            $Success = $false
+        }
+    } else {
+        Write-Log "=== START PUSH: Pushe ausstehende lokale Commits auf Branch '$SelectedBranch' ===" $Colors.Accent
     }
     
-    # 2. Commit erzeugen
-    Write-Log "Erstelle Commit..."
-    $EscapedComment = $Comment -replace '"', '\"'
-    $CommitResult = Invoke-Git "commit -m `"$EscapedComment`""
-    
-    if ($CommitResult.ExitCode -eq 0) {
-        Write-Log $CommitResult.Output $Colors.Green
-        
+    if ($Success) {
         # 3. Push ausführen
         Write-Log "Übertrage Daten zu GitHub (Push auf '$SelectedBranch')..."
         $PushResult = Invoke-Git "push origin $SelectedBranch"
         
         if ($PushResult.ExitCode -eq 0) {
-            Write-Log "=== ERFOLG: $([char]196)nderungen wurden sicher auf GitHub hochgeladen! ===" $Colors.Green
-            $txtCommitMsg.Text = ""
+            Write-Log "=== ERFOLG: Daten wurden sicher auf GitHub hochgeladen! ===" $Colors.Green
+            if (-not $IsPushOnly) {
+                $txtCommitMsg.Text = ""
+            }
         } else {
             Write-Log "Fehler beim Hochladen zu GitHub:" $Colors.Red
             Write-Log $PushResult.Error $Colors.Red
-            Write-Log "TIPP: Falls dies der erste Push f$([char]252)r diesen Branch ist, fuehren Sie eventuell zuerst einen Push mit '--set-upstream origin $SelectedBranch' aus oder pruefen Sie Ihre Schreibrechte." $Colors.Accent
+            Write-Log "TIPP: Bitte pr$([char]252)fen Sie Ihre Internetverbindung. Da Ihr Commit lokal bereits erstellt wurde, k$([char]246)nnen Sie den Push $([char]252)ber diesen Button erneut versuchen, sobald die Verbindung wiederhergestellt ist." $Colors.Accent
         }
-    } else {
-        Write-Log "Fehler beim Commit:" $Colors.Red
-        Write-Log $CommitResult.Error $Colors.Red
     }
     
     $Form.Enabled = $true
