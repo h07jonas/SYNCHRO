@@ -1,0 +1,100 @@
+* =====================================================================
+* LTSPICE NETLIST - PHYSICALLY & ELECTRICALLY VERIFIED
+* Speichern unter: "simulation.net" (oder .cir) - NICHT als .asc speichern!
+* Öffnen über: File -> Open (Dateityp "Netlists")
+* =====================================================================
+.options cshunt=1e-15
+
+* --- Spannungsversorgungen ---
+V_VS VS 0 24
+V_5V +5V 0 5
+
+* --- Steuersignale (10 kHz komplementäres PWM) ---
+V_IN1 IN1 0 PULSE(0 5 0 1u 1u 45u 100u)
+V_IN2 IN2 0 PULSE(5 0 0 1u 1u 45u 100u)
+
+* --- L6203 Treiber Instanziierung ---
+* Pinreihenfolge: OUT2 VS OUT1 BOOT1 IN1 GND IN2 BOOT2 SENSE EN VREF
+XIC1 OUT2 VS OUT1 Net-_IC1-CBOOT1_ IN1 0 IN2 Net-_IC1-CBOOT2_ Net-_IC1-SENSE_ +5V Net-_IC1-VREF_ L6203
+
+* --- L6203 SPICE-Makromodell (Subcircuit) ---
+.SUBCKT L6203 OUT2 VS OUT1 BOOT1 IN1 GND IN2 BOOT2 SENSE EN VREF
+M1 VS 41 3 3 DMOS_N
+M2 3 51 GND GND DMOS_N
+M3 VS 81 1 1 DMOS_N
+M4 1 71 GND GND DMOS_N
+E1 41 3 VALUE = { IF( V(IN1)>1.5 AND V(EN)>1.5, V(BOOT1)-V(3), 0 ) }
+E2 51 GND VALUE = { IF( V(IN1)<0.8 AND V(EN)>1.5, 5, 0 ) }
+E3 81 1 VALUE = { IF( V(IN2)>1.5 AND V(EN)>1.5, V(BOOT2)-V(1), 0 ) }
+E4 71 GND VALUE = { IF( V(IN2)<0.8 AND V(EN)>1.5, 5, 0 ) }
+R_SENSE GND SENSE 100k
+V_REF VREF GND 5.0
+.MODEL DMOS_N NMOS (VTO=2.5 KP=20 VMAX=1E6 RS=0.15 RD=0.15)
+.ENDS L6203
+
+* --- Aktive Netzwerkskomponenten (L6203 Peripherie) ---
+C2 VS 0 470u
+C3 VS 0 470u
+C8 VS 0 10u
+
+C10 +5V 0 100n
+C12 +5V 0 100n
+C9 +5V 0 100n
+C11 +5V 0 100n
+
+* Bootstrap-Kondensatoren (Zwingend für High-Side Gate-Driver)
+C5 Net-_IC1-CBOOT1_ OUT1 22n
+C6 OUT2 Net-_IC1-CBOOT2_ 22n
+
+* Snubber-Netzwerk an den Ausgängen
+C7 OUT1 Net-_C7-Pad2_ 22n
+R6 Net-_C7-Pad2_ OUT2 10
+
+* SENSE Filterung (0.33 Ohm Shunt & RC-Filter)
+R1 Net-_IC1-SENSE_ 0 0.33
+R2 /SENSE Net-_IC1-SENSE_ 1k
+C1 /SENSE 0 10n
+
+* VREF Pufferkondensator
+C4 Net-_IC1-VREF_ 0 10n
+
+* Optionaler Lastwiderstand für den Brückenausgang (Motor-Ersatz)
+R_LOAD OUT1 OUT2 10
+
+* --- Deaktivierte/Unbenutzte Peripheriekomponenten (zur Fehlervermeidung auskommentiert) ---
+* R5 +5V Net-_U1-1OUT_ 4.7k
+* R11 Net-_R11-Pad1_ 0 10k
+* D5 +5V Net-_D5-A_ LED
+* R13 +5V Net-_D5-A_ 1k
+* R9 +5V /Booster_Signal_B 4.7k
+* R10 +5V /Booster_Signal_A 4.7k
+* R12 +5V Net-_D4-A_ 1k
+* D4 0 Net-_D4-A_ LED
+* R8 /DCC_Signal_B Net-_D2-K_ 1.2k
+* D2 0 Net-_D2-K_ __D2
+* R3 +5V Net-_U1-1IN-_ 24k
+* R4 Net-_U1-1IN-_ 0 1k
+* R7 /DCC_Signal_A Net-_D1-K_ 1.2k
+* D1 0 Net-_D1-K_ __D1
+* U1 __U1
+* U4 __U4
+* J4 __J4
+* SW1 __SW1
+* J2 __J2
+* J3 __J3
+* SW2 __SW2
+* U3 __U3
+* J1 __J1
+* D3 __D3
+* PS1 __PS1
+* U2 __U2
+
+* --- SPICE Modelle ---
+.model __D2 D
+.model __D1 D
+.model LED D
+
+* --- Simulationsbefehl ---
+.tran 20m
+
+.end

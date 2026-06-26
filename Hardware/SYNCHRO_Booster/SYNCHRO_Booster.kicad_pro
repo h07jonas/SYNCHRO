@@ -492,7 +492,35 @@
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 2147483647,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.2,
+        "track_width": 0.25,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 47,
+        "clearance": 0.2,
+        "line_style": 0,
+        "name": "Power_Heavy",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
+        "schematic_color": "rgb(255, 0, 0)",
+        "track_width": 1.2,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 20,
+        "clearance": 0.2,
+        "line_style": 0,
+        "name": "Power_Logic",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 0,
+        "schematic_color": "rgb(255, 153, 0)",
+        "track_width": 0.5,
         "tuning_profile": "",
         "via_diameter": 0.6,
         "via_drill": 0.3,
@@ -503,8 +531,34 @@
       "version": 5
     },
     "net_colors": null,
-    "netclass_assignments": null,
-    "netclass_patterns": []
+    "netclass_assignments": {
+      "Net-(D3-A1)": [
+        "Power_Heavy"
+      ],
+      "Net-(D3-A2)": [
+        "Power_Heavy"
+      ],
+      "Net-(IC1-SENSE)": [
+        "Power_Heavy"
+      ],
+      "Net-(J2-Pin_1)": [
+        "Power_Heavy"
+      ]
+    },
+    "netclass_patterns": [
+      {
+        "netclass": "Power_Heavy",
+        "pattern": "+15V"
+      },
+      {
+        "netclass": "Power_Heavy",
+        "pattern": "GND1"
+      },
+      {
+        "netclass": "Power_Logic",
+        "pattern": "+5V"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {
@@ -634,7 +688,7 @@
         "uuid": "9b53547f-1606-48cc-b9fd-758d35b9d4f2"
       }
     ],
-    "used_designators": "R3-5,J2-3,#PWR4,#PWR7,#PWR21-24,#PWR27-28,#PWR31-32",
+    "used_designators": "",
     "variants": []
   },
   "sheets": [

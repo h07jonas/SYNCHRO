@@ -1,0 +1,46 @@
+.title KiCad schematic
+.model __D2 D
+.model __D1 D
+C10 +5V GND1 100n
+U1 __U1
+R5 +5V Net-_U1-1OUT_ 4.7k
+C2 +15V GND1 470u
+C3 +15V GND1 470u
+R2 /SENSE Net-_IC1-SENSE_ 1k
+C1 /SENSE GND1 100n
+IC1 __IC1
+R1 Net-_IC1-SENSE_ GND1 100m
+U4 __U4
+J4 __J4
+SW1 __SW1
+R11 Net-_R11-Pad1_ GND1 10k
+D5 /ENABLE Net-_D5-A_ LED
+R13 +5V Net-_D5-A_ 1k
+C4 GND1 Net-_IC1-VREF_ 10n
+R9 +5V /Booster_Signal_B 4.7k
+R10 +5V /Booster_Signal_A 4.7k
+J2 __J2
+J3 __J3
+R12 +5V Net-_D4-A_ 1k
+SW2 __SW2
+D4 GND1 Net-_D4-A_ LED
+U3 __U3
+R8 /DCC_Signal_B Net-_D2-K_ 1.2k
+D2 GND_Z Net-_D2-K_ __D2
+C12 +5V GND1 100n
+J1 __J1
+C5 Net-_IC1-CBOOT1_ Net-_D3-A1_ 22nF 50V
+C6 Net-_D3-A2_ Net-_IC1-CBOOT2_ 22nF 50V
+C7 Net-_D3-A1_ Net-_C7-Pad2_ 22nF 50V
+R6 Net-_C7-Pad2_ Net-_D3-A2_ 10
+D3 __D3
+PS1 __PS1
+C8 +15V GND1 10uF 50V
+C9 +5V GND1 100n
+R3 +5V Net-_U1-1IN-_ 24k
+R4 Net-_U1-1IN-_ GND1 1k
+R7 /DCC_Signal_A Net-_D1-K_ 1.2k
+D1 GND_Z Net-_D1-K_ __D1
+C11 +5V GND1 100n
+U2 __U2
+.end

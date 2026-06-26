@@ -1,0 +1,83 @@
+* SPICE-Subcircuit-Modell für L6203 DMOS Full Bridge Driver
+* Vollständig korrigierte Version für LTspice (24.1.1+) und KiCad
+*
+* Pinbelegung gemäss Datenblatt (Top View / Pin Functions):
+* Pin 1:  OUT2   (Ausgang der 2. Halbbrücke)
+* Pin 2:  VS     (Versorgungsspannung, 12V bis 48V)
+* Pin 3:  OUT1   (Ausgang der 1. Halbbrücke)
+* Pin 4:  BOOT1  (Bootstrap 1)
+* Pin 5:  IN1    (Digitaler Eingang 1)
+* Pin 6:  GND    (Masse / Gehäusetab)
+* Pin 7:  IN2    (Digitaler Eingang 2)
+* Pin 8:  BOOT2  (Bootstrap 2)
+* Pin 9:  VREF   (Interne Referenzspannung, 13.5V typisch)
+* Pin 10: SENSE  (Stromfühler-Anschluss für externen Shunt)
+* Pin 11: ENABLE (Aktivierungseingang, TTL-kompatibel)
+*
+.SUBCKT L6203 OUT2 VS OUT1 BOOT1 IN1 GND IN2 BOOT2 VREF SENSE ENABLE
+
+*-------------------------------------------------------------------------
+* 1. Interne Referenzspannung (VREF) & Hilfsquellen
+*-------------------------------------------------------------------------
+V_REF VREF GND 13.5V
+R_REF VREF GND 6.75k ; Begrenzt den Kurzschlussstrom auf max. 2mA
+
+*-------------------------------------------------------------------------
+* 2. Eingangsstufen & TTL-Logik-Dekodierung (Schwellenwert Vth = 1.4V)
+*-------------------------------------------------------------------------
+B_EN_LOGIC  EN_INT  0 V=IF(V(ENABLE,GND) > 1.4, 1, 0)
+B_IN1_LOGIC IN1_INT 0 V=IF(V(IN1,GND) > 1.4, 1, 0)
+B_IN2_LOGIC IN2_INT 0 V=IF(V(IN2,GND) > 1.4, 1, 0)
+
+*-------------------------------------------------------------------------
+* 3. Ansteuerungslogik für die H-Brücke (LTspice-konforme Syntax)
+*-------------------------------------------------------------------------
+* Tiefpassfilter für die interne Totzeit-Verzögerung (Cross Conduction Protection)
+R_D1 IN1_INT IN1_DEL 300
+C_D1 IN1_DEL 0       1nF
+R_D2 IN2_INT IN2_DEL 300
+C_D2 IN2_DEL 0       1nF
+
+* HS/LS Treiber-Logik: Bedingungen multipliziert für logisches UND
+B_HS1 HS1_DRV 0 V=IF((V(EN_INT)>0.5) * (V(IN1_DEL)>0.5), 1, 0)
+B_LS1 LS1_DRV 0 V=IF((V(EN_INT)>0.5) * (V(IN1_DEL)<0.5), 1, 0)
+
+B_HS2 HS2_DRV 0 V=IF((V(EN_INT)>0.5) * (V(IN2_DEL)>0.5), 1, 0)
+B_LS2 LS2_DRV 0 V=IF((V(EN_INT)>0.5) * (V(IN2_DEL)<0.5), 1, 0)
+
+*-------------------------------------------------------------------------
+* 4. Leistungsstufe: Halbbrücke 1 (Sperrwiderstand = 1G)
+*-------------------------------------------------------------------------
+* High-Side DMOS 1 (RDS_ON = 0.3 Ohm typisch)
+B_MHS1 VS OUT1 I=V(VS,OUT1) / IF(V(HS1_DRV)>0.5, 0.3, 1G)
+
+* Low-Side DMOS 1 (RDS_ON = 0.3 Ohm typisch) führt auf SENSE
+B_MLS1 OUT1 SENSE I=V(OUT1,SENSE) / IF(V(LS1_DRV)>0.5, 0.3, 1G)
+
+* Integrierte DMOS-Body-Dioden (Syntax: Dxxx Anode Kathode Modellname)
+D_B_LS1 SENSE OUT1 DMOS_DIODE
+D_B_HS1 OUT1 VS    DMOS_DIODE
+
+*-------------------------------------------------------------------------
+* 5. Leistungsstufe: Halbbrücke 2 (Sperrwiderstand = 1G)
+*-------------------------------------------------------------------------
+* High-Side DMOS 2 (RDS_ON = 0.3 Ohm typisch)
+B_MHS2 VS OUT2 I=V(VS,OUT2) / IF(V(HS2_DRV)>0.5, 0.3, 1G)
+
+* Low-Side DMOS 2 (RDS_ON = 0.3 Ohm typisch) führt auf SENSE
+B_MLS2 OUT2 SENSE I=V(OUT2,SENSE) / IF(V(LS2_DRV)>0.5, 0.3, 1G)
+
+* Integrierte DMOS-Body-Dioden (Syntax: Dxxx Anode Kathode Modellname)
+D_B_LS2 SENSE OUT2 DMOS_DIODE
+D_B_HS2 OUT2 VS    DMOS_DIODE
+
+*-------------------------------------------------------------------------
+* 6. Modelle & Dummy-Verbindungen
+*-------------------------------------------------------------------------
+.MODEL DMOS_DIODE D(IS=1e-12 RS=0.1 N=1.05 CJO=1nF BV=52V)
+
+* Bootstrap-Dummys gegen "floating node"-Warnungen
+R_BOOT1 BOOT1 OUT1 10Meg
+R_BOOT2 BOOT2 OUT2 10Meg
+
+.ENDS L6203
