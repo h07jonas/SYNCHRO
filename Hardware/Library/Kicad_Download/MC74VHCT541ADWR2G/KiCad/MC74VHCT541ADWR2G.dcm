@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP MC74VHCT541ADWR2G
+D High Speed: tPD = 5.4ns (Typ) at VCC = 5V; Low Noise: VOLP = 1.6V (Max); Balanced Propagation Delays; TTL-Compatible Inputs: VIL = 0.8V; VIH = 2.0V; ESD Performance: HBM > 2000V; Machine Model > 200V; Designed for 4.5V to 5.5V Operating Range; Latchup Performance Exceeds 300mA; Chip Complexity: 134 FETs or 33.5 Equivalent Gates; Low Power Dissipation: ICC = 4A (Max) at TA = 25 C; Pin and Function Compatible with Other Standard Logic Families; Power Down Protection Provided on Inputs and Outputs; Pb-Free Pa
+K
+F https://www.onsemi.com/pub/Collateral/MC74VHC541-D.PDF
+$ENDCMP
+#
+#End Doc Library

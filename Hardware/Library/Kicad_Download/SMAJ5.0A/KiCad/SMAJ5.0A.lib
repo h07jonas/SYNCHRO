@@ -1,0 +1,26 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#SamacSys ECAD Model SMAJ5.0A
+#/17272555/1876838/2.50/2/3/TVS Diode (Uni-directional)
+DEF SMAJ5.0A D 0 30 Y Y 1 F N
+F0 "D" 400 350 50 H V L BNN
+F1 "SMAJ5.0A" 400 250 50 H V L BNN
+F2 "DIOM5226X243N" 400 150 50 H I L BNN
+F3 "http://datasheets.kyocera-avx.com/tvsdiodes.pdf" 400 50 50 H I L BNN
+F4 "KYOCERA AVX - SMAJ5.0A - TVS Diode, TRANSZORB SMAJ, Unidirectional, 5 V, 9.2 V, DO-214AC (SMA), 2 Pins" 400 -50 50 H I L BNN "Description"
+F5 "2.43" 400 -150 50 H I L BNN "Height"
+F6 "581-SMAJ5.0A" 400 -250 50 H I L BNN "Mouser Part Number"
+F7 "https://www.mouser.co.uk/ProductDetail/KYOCERA-AVX/SMAJ5.0A?qs=tuYJFV7zqWuCnk6fJgfdVg%3D%3D" 400 -350 50 H I L BNN "Mouser Price/Stock"
+F8 "Kyocera AVX" 400 -450 50 H I L BNN "Manufacturer_Name"
+F9 "SMAJ5.0A" 400 -550 50 H I L BNN "Manufacturer_Part_Number"
+DRAW
+X ~ 1 0 0 200 R 50 50 0 0 P
+X ~ 2 600 0 200 L 50 50 0 0 P
+P 4 0 1 6 200 0 400 100 400 -100 200 0 N
+P 2 0 1 6 200 -80 240 -100 N
+P 2 0 1 6 200 -80 200 80 N
+P 2 0 1 6 160 100 200 80 N
+ENDDRAW
+ENDDEF
+#
+#End Library

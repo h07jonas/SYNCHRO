@@ -10,6 +10,7 @@
 |USB 2.0 B Type|1|523-GSB22120RSKEU|mouser|
 |DC/DC-Wandler – Durchsteckmontage 3.3V 500mA|1|919-R-78E3.3-0.5|mouser|
 |Keramikkondensator 10uF X7R 1210|1|963-TMK325AB7106KMPR|mouser|
+|Leitungstreiber Non-inverting Octal Bus|2|863-C74VHCT541ADWR2G|mouser|
 
 
 
