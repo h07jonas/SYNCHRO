@@ -899,18 +899,23 @@ $UpdateStatus = {
         $lblRemoteInfo.Text = "GitHub Remote-Ziel: Kein Remote-Link ('origin') hinterlegt!"
     }
     
-    # Pr$([char]252)fen, ob wir Commits vor/nach Remote haben (ahead/behind)
+    # Robustes Auslesen ausstehender Commits (ahead/behind)
+    $SelectedBranch = $cmbBranches.SelectedItem
+    if (-not $SelectedBranch) { $SelectedBranch = "main" }
+    
     $AheadCount = 0
     $BehindCount = 0
-    $StatusB = Invoke-Git "status -b --porcelain"
-    if ($StatusB.ExitCode -eq 0 -and $StatusB.Output -match "\[(.*)\]") {
-        $Details = $Matches[1]
-        if ($Details -match "ahead\s+(\d+)") {
-            $AheadCount = [int]$Matches[1]
-        }
-        if ($Details -match "behind\s+(\d+)") {
-            $BehindCount = [int]$Matches[1]
-        }
+    
+    $AheadLog = Invoke-Git "log origin/$SelectedBranch..HEAD --oneline"
+    if ($AheadLog.ExitCode -eq 0 -and -not [string]::IsNullOrEmpty($AheadLog.Output)) {
+        $AheadLines = $AheadLog.Output -split "`r?`n" | Where-Object { $_ -ne "" }
+        $AheadCount = $AheadLines.Count
+    }
+    
+    $BehindLog = Invoke-Git "log HEAD..origin/$SelectedBranch --oneline"
+    if ($BehindLog.ExitCode -eq 0 -and -not [string]::IsNullOrEmpty($BehindLog.Output)) {
+        $BehindLines = $BehindLog.Output -split "`r?`n" | Where-Object { $_ -ne "" }
+        $BehindCount = $BehindLines.Count
     }
     
     # Git Status abrufen
@@ -1191,10 +1196,6 @@ $cmbBranches_SelectedIndexChanged = {
 
 # Unified Refresh Action
 $DoRefreshAll = {
-    $RemoteCheck = Invoke-Git "remote"
-    if ($RemoteCheck.ExitCode -eq 0 -and -not [string]::IsNullOrEmpty($RemoteCheck.Output)) {
-        Invoke-Git "fetch origin" | Out-Null
-    }
     & $UpdateBranches
     & $UpdateStatus
     & $UpdateTreeView
@@ -1235,13 +1236,19 @@ $DoPush = {
     $CheckedItems = $FileListBox.CheckedItems
     
     $IsPushOnly = $false
+    
+    # Pr$([char]252;)fen, ob ungesicherte Commits vorhanden sind
+    $SelectedBranch = $cmbBranches.SelectedItem
+    if (-not $SelectedBranch) { $SelectedBranch = "main" }
+    
+    $AheadCheck = 0
+    $AheadLog = Invoke-Git "log origin/$SelectedBranch..HEAD --oneline"
+    if ($AheadLog.ExitCode -eq 0 -and -not [string]::IsNullOrEmpty($AheadLog.Output)) {
+        $AheadLines = $AheadLog.Output -split "`r?`n" | Where-Object { $_ -ne "" }
+        $AheadCheck = $AheadLines.Count
+    }
+    
     if ($CheckedItems.Count -eq 0) {
-        $AheadCheck = 0
-        $StatusB = Invoke-Git "status -b --porcelain"
-        if ($StatusB.ExitCode -eq 0 -and $StatusB.Output -match "\[ahead\s+(\d+)\]") {
-            $AheadCheck = [int]$Matches[1]
-        }
-        
         if ($AheadCheck -gt 0) {
             $IsPushOnly = $true
         } else {
@@ -1258,12 +1265,8 @@ $DoPush = {
         }
     }
     
-    $SelectedBranch = $cmbBranches.SelectedItem
-    if (-not $SelectedBranch) { $SelectedBranch = "main" }
-    
     $Form.Enabled = $false
     
-    $Success = $true
     if (-not $IsPushOnly) {
         Write-Log "=== START UPLOAD: Sichern auf Branch '$SelectedBranch' ===" $Colors.Accent
         
@@ -1286,36 +1289,44 @@ $DoPush = {
             }
         }
         
-        # 2. Commit erzeugen
-        Write-Log "Erstelle Commit..."
+        # 2. Lokalen Commit erzeugen
+        Write-Log "Erstelle lokalen Commit..."
         $EscapedComment = $Comment -replace '"', '\"'
         $CommitResult = Invoke-Git "commit -m `"$EscapedComment`""
         
-        if ($CommitResult.ExitCode -eq 0) {
-            Write-Log $CommitResult.Output $Colors.Green
-        } else {
-            Write-Log "Fehler beim Commit:" $Colors.Red
+        if ($CommitResult.ExitCode -ne 0) {
+            Write-Log "Fehler beim Erstellen des lokalen Commits:" $Colors.Red
             Write-Log $CommitResult.Error $Colors.Red
-            $Success = $false
+            $Form.Enabled = $true
+            & $UpdateStatus
+            return
         }
+        
+        Write-Log "Lokaler Commit erfolgreich erstellt. Starte GitHub Push..." $Colors.Green
     } else {
         Write-Log "=== START PUSH: Pushe ausstehende lokale Commits auf Branch '$SelectedBranch' ===" $Colors.Accent
     }
     
-    if ($Success) {
-        # 3. Push ausführen
-        Write-Log "Übertrage Daten zu GitHub (Push auf '$SelectedBranch')..."
-        $PushResult = Invoke-Git "push origin $SelectedBranch"
+    # 3. Push nach GitHub ausführen
+    Write-Log "Übertrage Daten zu GitHub (Push auf '$SelectedBranch')..."
+    $PushResult = Invoke-Git "push origin $SelectedBranch"
+    
+    if ($PushResult.ExitCode -eq 0) {
+        Write-Log "=== ERFOLG: Daten wurden sicher auf GitHub hochgeladen! ===" $Colors.Green
+        if (-not $IsPushOnly) {
+            $txtCommitMsg.Text = ""
+        }
+    } else {
+        Write-Log "FEHLER BEIM UPLOAD ZU GITHUB:" $Colors.Red
+        if ($PushResult.Error) { Write-Log $PushResult.Error $Colors.Red }
+        if ($PushResult.Output) { Write-Log $PushResult.Output $Colors.Red }
         
-        if ($PushResult.ExitCode -eq 0) {
-            Write-Log "=== ERFOLG: Daten wurden sicher auf GitHub hochgeladen! ===" $Colors.Green
-            if (-not $IsPushOnly) {
-                $txtCommitMsg.Text = ""
-            }
+        if (-not $IsPushOnly) {
+            Write-Log "SICHERHEITS-ROLLBACK: Da der Push fehlgeschlagen ist, wird der lokale Commit rückgängig gemacht, damit Ihre Auswahlen und Ihr Kommentar erhalten bleiben!" $Colors.Accent
+            Invoke-Git "reset --soft HEAD~1" | Out-Null
+            Write-Log "TIPP: Ihre Dateiauswahl und Ihr Kommentar wurden aufbewahrt. Bitte prüfen Sie Ihre Internetverbindung/Zugangsdaten und versuchen Sie es erneut." $Colors.Accent
         } else {
-            Write-Log "Fehler beim Hochladen zu GitHub:" $Colors.Red
-            Write-Log $PushResult.Error $Colors.Red
-            Write-Log "TIPP: Bitte pr$([char]252)fen Sie Ihre Internetverbindung. Da Ihr Commit lokal bereits erstellt wurde, k$([char]246)nnen Sie den Push $([char]252)ber diesen Button erneut versuchen, sobald die Verbindung wiederhergestellt ist." $Colors.Accent
+            Write-Log "TIPP: Der Push ist fehlgeschlagen. Ihre lokalen Commits bleiben sicher gespeichert. Versuchen Sie es erneut, sobald die Verbindung wieder steht." $Colors.Accent
         }
     }
     

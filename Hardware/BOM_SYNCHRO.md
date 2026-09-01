@@ -11,6 +11,12 @@
 |DC/DC-Wandler – Durchsteckmontage 3.3V 500mA|1|919-R-78E3.3-0.5|mouser|
 |Keramikkondensator 10uF X7R 1210|1|963-TMK325AB7106KMPR|mouser|
 |Leitungstreiber Non-inverting Octal Bus|2|863-C74VHCT541ADWR2G|mouser|
+|DC/DC-Wandler – Durchsteckmontage 8-28Vin 5V 1.0A THRU|1|919-R-78E5.0-1.0|mouser|
+|AC-Adapter 12V 1A|1|490-SWI12-12-E-P5|mouser|
+|DC-Spannungsversorgungssteckverbinder|1|710-694106301002|mouser|
+|LDO Spannungs-Regulator LDO BJT HiCurr 3.3V 1A|1|621-AZ1117CH-3.3TRG1|mouser|
+|Schottky Diode|1|771-PMEG3010ER-QX|mouser|
+|XH Header Sockel|8|306-B4BXHALFSN|mouser|
 
 
 
