@@ -932,7 +932,7 @@ $UpdateStatus = {
     foreach ($Line in $Lines) {
         if ($Line -match "^(.{2})\s+(.*)$") {
             $Flag = $Matches[1]
-            $FilePath = $Matches[2]
+            $FilePath = $Matches[2].Trim('"').Trim()
         } else {
             continue
         }
@@ -1273,6 +1273,7 @@ $DoPush = {
         # 1. Staging der selektierten Dateien
         foreach ($Item in $CheckedItems) {
             $CleanPath = $Item -replace "^\[.*?\]\s+", ""
+            $CleanPath = $CleanPath.Trim('"').Trim()
             if ($CleanPath -match " -> ") {
                 $Parts = $CleanPath -split " -> "
                 $OldPath = $Parts[0].Trim()
