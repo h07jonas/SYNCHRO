@@ -14528,7 +14528,7 @@
 		(layer "Edge.Cuts")
 		(uuid "ea9c85ab-5ef7-4d87-8663-92a3126ae315")
 	)
-	(gr_text "SYNCHRO Booster V1.0"
+	(gr_text "SYNCHRO Booster V2.0"
 		(at 91.44 152.4 0)
 		(layer "F.Cu")
 		(uuid "4a5f8941-3b5d-4dfb-b508-95f459098758")
@@ -14574,6 +14574,19 @@
 				(size 2 2)
 				(thickness 0.3)
 			)
+		)
+	)
+	(gr_text "100nF Kondensator Footprint wechseln\n"
+		(at 58 83.5 0)
+		(layer "User.1")
+		(uuid "9eaf826f-3bae-455e-859f-0c464e1b25fa")
+		(effects
+			(font
+				(size 1.5 1.5)
+				(thickness 0.3)
+				(bold yes)
+			)
+			(justify left bottom)
 		)
 	)
 	(segment

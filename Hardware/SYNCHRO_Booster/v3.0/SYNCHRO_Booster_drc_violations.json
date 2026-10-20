@@ -1,0 +1,352 @@
+{
+  "board": "C:\\Users\\jonas\\Desktop\\SYNCHRO\\Hardware\\SYNCHRO_Booster\\v3.0\\SYNCHRO_Booster.kicad_pcb",
+  "timestamp": "2026-10-20T19:24:56",
+  "total_violations": 33,
+  "violation_counts": {
+    "starved_thermal": 3,
+    "track_dangling": 2,
+    "isolated_copper": 13,
+    "silk_edge_clearance": 3,
+    "silk_overlap": 1,
+    "silk_over_copper": 11
+  },
+  "severity_counts": {
+    "error": 3,
+    "warning": 30,
+    "info": 0
+  },
+  "violations": [
+    {
+      "type": "starved_thermal",
+      "severity": "error",
+      "message": "Verbindung der W\u00e4rmefalle zur Zone unvollst\u00e4ndig (Lage F.Cu; 1 Stege zu isolierter Insel verbunden)",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "starved_thermal",
+      "severity": "error",
+      "message": "Verbindung der W\u00e4rmefalle zur Zone unvollst\u00e4ndig (Lage F.Cu; Zone min. Steganzahl 2; tats\u00e4chlich 1)",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "starved_thermal",
+      "severity": "error",
+      "message": "Verbindung der W\u00e4rmefalle zur Zone unvollst\u00e4ndig (Lage F.Cu; Zone min. Steganzahl 2; tats\u00e4chlich 1)",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "track_dangling",
+      "severity": "warning",
+      "message": "Track has unconnected end",
+      "location": {
+        "x": 83.82,
+        "y": 110.49,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "track_dangling",
+      "severity": "warning",
+      "message": "Track has unconnected end",
+      "location": {
+        "x": 83.82,
+        "y": 112.84,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "isolated_copper",
+      "severity": "warning",
+      "message": "Isolated copper fill",
+      "location": {
+        "x": 55.88,
+        "y": 125.095,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_edge_clearance",
+      "severity": "warning",
+      "message": "Silkscreen clipped by board edge",
+      "location": {
+        "x": 55.88,
+        "y": 154.94,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_edge_clearance",
+      "severity": "warning",
+      "message": "Silkscreen clipped by board edge",
+      "location": {
+        "x": 55.88,
+        "y": 154.94,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_edge_clearance",
+      "severity": "warning",
+      "message": "Silkscreen clipped by board edge",
+      "location": {
+        "x": 55.88,
+        "y": 154.94,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_overlap",
+      "severity": "warning",
+      "message": "Silkscreen clearance",
+      "location": {
+        "x": 121.457323,
+        "y": 121.747677,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 106.08,
+        "y": 142.42,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 108.585,
+        "y": 128.905,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 106.08,
+        "y": 128.82,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 106.08,
+        "y": 128.82,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 106.08,
+        "y": 132.22,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 106.08,
+        "y": 132.22,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 106.08,
+        "y": 135.62,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 106.08,
+        "y": 135.62,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 106.08,
+        "y": 139.02,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 106.08,
+        "y": 139.02,
+        "unit": "mm"
+      }
+    },
+    {
+      "type": "silk_over_copper",
+      "severity": "warning",
+      "message": "Silkscreen clipped by solder mask",
+      "location": {
+        "x": 106.08,
+        "y": 124.92,
+        "unit": "mm"
+      }
+    }
+  ],
+  "unconnected_count": 0,
+  "unconnected_items": []
+}
