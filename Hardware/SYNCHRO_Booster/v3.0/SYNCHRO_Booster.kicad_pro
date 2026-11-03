@@ -612,7 +612,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "../GerberFiles/SYNCHRO_Booster_V1.0/",
+      "plot": "Gerber/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "SYNCHRO_Booster.step",
