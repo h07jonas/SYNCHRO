@@ -1,0 +1,5 @@
+Kabel
+Netzteil
+Zentrale
+SMD Widerstände vielleicht
+vielleicht auch andere 100nF Kondensatoren

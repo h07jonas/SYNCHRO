@@ -1,0 +1,14 @@
+Zwischenbericht
+Darstellung: Document contains title page (without picture), table of contents and good structured text. Block diagrams and pictures help to understand text.
+5.5
+ 
+Nachvollziehbarkeit: For understanding hardware principially a description of DCC-Bitstream would be helpful. On layout of Zentrale I can’t find mentioned J11 (for future use)
+In booster the hardware current control for shut down in case of overcurrent is a good concept.
+For understanding software a description of serial data protocol is needed. Maybe also a help how the html side can be simply adapted to own needs.
+5
+ 
+Vollständigkeit: For reference a github link is available. In folder “Datasheets” it wold be helpful filename would correspond to mentioned component name.
+5.5
+ 
+Zielerreichung: Project deep is suitable for Elektroniker work. Own hardware and software production for driving model railway is an originally idee. Completing this project would you to have fun on a own hobby also in future.
+6
